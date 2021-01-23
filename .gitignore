@@ -1,0 +1,7 @@
+.idea/
+node-modules/
+vendor/
+
+.htaccess
+index.php
+composer.lock
