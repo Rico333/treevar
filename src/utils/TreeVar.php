@@ -82,7 +82,7 @@ if (!function_exists('treevar')) {
 		</style>
 			<div class="treevar"><!--
     		   --><div class="dParent'.($open_all?'':' dClose').'"><!--
-        	   --><div class="dInline"><div class="dInlineBlock dSquare dBtnOpenAll'.($open_all?'':' dClose').'">'.($open_all?'c':'o').'</div>&nbsp;TreeVar&nbsp;</div><div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div><!--
+        	   --><div class="dInline"><div class="dInlineBlock dSquare dBtnOpenAll'.($open_all?'':' dClose').'">'.($open_all?'c':'o').'</div>&nbsp;TreeVar&nbsp;<div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div></div><!--
         	   --><div class="dChilds '.($open_all?'':'dNone').'">';	
 		$openVar = function ($k, $v, $openVar, $open_all){
 			if (is_string($k)) {
