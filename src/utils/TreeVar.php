@@ -53,6 +53,24 @@
 		    .treevar .dNone {
 		        display: none;
 		    }
+		    .treevar .dc_orange {
+		        color: #ffa500;
+		    }
+		    .treevar .dc_blue {
+		        color: #00ffff;
+		    }
+		    .treevar .dc_purple {
+		        color: #ff00ff;
+		    }
+		    .treevar .dc_yellow {
+		        color: #ffff00;
+		    }
+		    .treevar .dc_red {
+		        color: #ff0000;
+		    }
+		    .treevar .dc_green {
+		        color: #01ff20;
+		    }
 		    /*.Node {
 		        margin-left: 18px;
 		        zoom: 1;
@@ -67,24 +85,43 @@
         	   --><div class="dInline"><div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div>&nbsp;TreeVar</div><!--
         	   --><div class="dChilds '.($open_all?'':'dNone').'">';	
 		$openVar = function ($k, $v, $openVar, $open_all){
+			$colors = [
+				'string' => '#56DB3A',
+				'integer' => '#1299DA',
+				'object' => '#ef00ff',
+				'array' => '#ffff00',
+				'source' => '#ff0000'
+			];
+			if (is_string($k)) {
+			 	$key_color = 'dc_green';
+			 } else if (is_numeric($k)) {
+				$key_color = 'dc_blue';
+			 } else {
+			 	$key_color = '';
+			 }
+			 if (empty($k) && $k !== 0) {
+				$d_key = '';
+			 } else {
+			 	$d_key = '[<span class="'.$key_color.'">'.$k.'</span>]&nbsp;:&nbsp;';
+			 }
 			 if (is_array($v)) {
 			 	$type = 'a';
 			 	if (empty($v)) {
-					return '<div class="dVdash"></div><div class="dInline">'.((empty($k)&&$k!==0)?(''):('['.$k.'] : ')).(gettype($v)).'()</div><br />';
+					return '<div class="dVdash"></div><div class="dInline">'.$d_key.'<span class="dc_yellow">'.(gettype($v)).'</span>&nbsp;=&gt;&nbsp;<span class="dc_yellow">[]</span></div><br />';
 			 	} else {
 			 		$s = '
 			 		<div class="dParent '.($open_all?'':'dClose').'"><div class="dVdash dInline"></div><!--
-                	  --><div class="dInline"><div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div>&nbsp;';
-                	$s .= ((empty($k)&&$k!==0)?(''):('['.$k.'] : ')).(gettype($v));
-                	$s .= '</div><div class="dChilds dStep '.($open_all?'':'dNone').'">';
+                	  --><div class="dInline">';
+                	$s .= $d_key.'<span class="dc_yellow">'.(gettype($v)).'</span>';
+                	$s .= '&nbsp;=&gt;&nbsp;<div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div></div><div class="dChilds dStep '.($open_all?'':'dNone').'">';
                 }
 			 } else if (is_object($v)) {
 			 	$type = 'o';
 			 	$s = '
 			 	<div class="dParent '.($open_all?'':'dClose').'"><div class="dVdash dInline"></div><!--
-                   --><div class="dInline"><div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div>&nbsp;';
-				$s .= ((empty($k)&&$k!==0)?(''):('['.$k.'] : ')).(get_class($v));
-                $s .= '</div><div class="dChilds dStep '.($open_all?'':'dNone').'">';
+                   --><div class="dInline">';
+				$s .= $d_key.'<span class="dc_orange">'.(get_class($v)).'</span>';
+                $s .= '&nbsp;=&gt;&nbsp;<div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div></div><div class="dChilds dStep '.($open_all?'':'dNone').'">';
 				// $v = get_class_vars(get_class($v));
 				$ref = new \ReflectionObject($v);
 				$vv = [];
@@ -96,9 +133,18 @@
 				$v = $vv;
 			 } else if (is_resource($v)) {
 			 	$type = 'r';
-			 	return '<div class="dVdash"></div><div class="dInline">'.((empty($k)&&$k!==0)?(''):('['.$k.'] : ')).(get_resource_type($v)).'</div><br />';
+			 	return '<div class="dVdash"></div><div class="dInline dc_red">'.$d_key.'<span class="dc_red">'.(get_resource_type($v)).'</span></div><br />';
 			 } else {
-			 	return '<div class="dVdash"></div><div class="dInline">'.((empty($k)&&$k!==0)?(''):('['.$k.'] : ')).(gettype($v)).' =&gt; '.(strval($v)).'</div><br />';
+			 	if (is_string($v)) {
+			 		$v_color = 'dc_green';
+			 	} else if (is_bool($v)) {
+					$v_color = 'dc_purple';
+			 	} else if (is_numeric($v)) {
+					$v_color = 'dc_blue';
+			 	} else {
+			 		$v_color = '';
+			 	}
+			 	return '<div class="dVdash"></div><div class="dInline">'.$d_key.'<span class="'.$v_color.'">'.(gettype($v)).'</span>&nbsp;=&gt;&nbsp;<span class="'.$v_color.'">'.(strval($v)).'</span></div><br />';
 			 }
 			 foreach ($v as $key => $value) {
 			 	$s .= $openVar($key, $value, $openVar, $open_all);
