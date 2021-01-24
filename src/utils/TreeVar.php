@@ -100,22 +100,17 @@
 			 if (is_array($v)) {
 			 	$type = 'a';
 			 	if (empty($v)) {
-					return '<div class="dVdash"></div><div class="dInline">'.$d_key.'<span class="dc_yellow">'.(gettype($v)).'</span>&nbsp;=&gt;&nbsp;<span class="dc_yellow">[]</span></div><br />';
+					return '<div class="dVdash"></div><div class="dInline">'.$d_key.'<span class="dc_yellow">'.(gettype($v)).'</span>&nbsp;=&gt;&nbsp;(<span class="dc_blue">0</span>)</div><br />';
 			 	} else {
 			 		$s = '
 			 		<div class="dParent '.($open_all?'':'dClose').'"><div class="dVdash dInline"></div><!--
                 	  --><div class="dInline">';
                 	$s .= $d_key.'<span class="dc_yellow">'.(gettype($v)).'</span>';
-                	$s .= '&nbsp;=&gt;&nbsp;<div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div></div><div class="dChilds dStep '.($open_all?'':'dNone').'">';
+                	$s .= '&nbsp;(<span class="dc_blue">'.count($v).'</span>)&nbsp;=&gt;&nbsp;<div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div></div><div class="dChilds dStep '.($open_all?'':'dNone').'">';
                 }
 			 } else if (is_object($v)) {
 			 	$type = 'o';
-			 	$s = '
-			 	<div class="dParent '.($open_all?'':'dClose').'"><div class="dVdash dInline"></div><!--
-                   --><div class="dInline">';
-				$s .= $d_key.'<span class="dc_orange">'.(get_class($v)).'</span>';
-                $s .= '&nbsp;=&gt;&nbsp;<div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div></div><div class="dChilds dStep '.($open_all?'':'dNone').'">';
-				// $v = get_class_vars(get_class($v));
+			 	// $v = get_class_vars(get_class($v));
 				$ref = new \ReflectionObject($v);
 				$vv = [];
 				foreach ($ref->getProperties() as $prop)
@@ -123,6 +118,11 @@
 				    $prop->setAccessible(true);
 				    $vv[$prop->getName()]=$prop->getValue($v);
 				};
+			 	$s = '
+			 	<div class="dParent '.($open_all?'':'dClose').'"><div class="dVdash dInline"></div><!--
+                   --><div class="dInline">';
+				$s .= $d_key.'<span class="dc_orange">'.(get_class($v)).'</span>';
+                $s .= '&nbsp;(<span class="dc_blue">'.count($vv).'</span>)&nbsp;=&gt;&nbsp;<div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div></div><div class="dChilds dStep '.($open_all?'':'dNone').'">';
 				$v = $vv;
 			 } else if (is_resource($v)) {
 			 	$type = 'r';
