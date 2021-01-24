@@ -71,6 +71,9 @@ if (!function_exists('treevar')) {
 		    .treevar .dc_green {
 		        color: #01ff20;
 		    }
+		    .treevar .dc_salad {
+		        color: #04c89b;
+		    }
 		    /*.Node {
 		        margin-left: 18px;
 		        zoom: 1;
@@ -80,9 +83,9 @@ if (!function_exists('treevar')) {
 		        background-repeat : repeat-y;
 		    }*/
 		</style>
-			<div class="treevar"><!--
+			<div class="treevar'.($open_all?'':' dClose').'"><!--
     		   --><div class="dParent'.($open_all?'':' dClose').'"><!--
-        	   --><div class="dInline"><div class="dInlineBlock dSquare dBtnOpenAll'.($open_all?'':' dClose').'">'.($open_all?'c':'o').'</div>&nbsp;TreeVar&nbsp;<div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div></div><!--
+        	   --><div class="dInline"><div class="dInlineBlock dSquare dBtnOpenAll">'.($open_all?'c':'o').'</div>&nbsp;TreeVar&nbsp;<div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div></div><!--
         	   --><div class="dChilds '.($open_all?'':'dNone').'">';	
 		$openVar = function ($k, $v, $openVar, $open_all){
 			if (is_string($k)) {
@@ -126,19 +129,38 @@ if (!function_exists('treevar')) {
 				$v = $vv;
 			 } else if (is_resource($v)) {
 			 	$type = 'r';
-			 	return '<div class="dVdash"></div><div class="dInline dc_red">'.$d_key.'<span class="dc_red">'.(get_resource_type($v)).'</span></div><br />';
+			 	return '<div class="dVdash"></div><div class="dInline">'.$d_key.'<span class="dc_salad">'.(get_resource_type($v)).'</span>&nbsp;=&gt;&nbsp;<span class="dc_salad">'.(strval($v)).'</span></div><br />';
 			 } else {
+			 	$str_val = strval($v);
 			 	if (is_string($v)) {
 			 		$v_color = 'dc_green';
 			 	} else if (is_bool($v)) {
-			 		if ($v === true) $v = 'true'; else if ($v === false) $v = 'false';
+			 		if ($v === true) $str_val = 'true'; else if ($v === false) $str_val = 'false';
 					$v_color = 'dc_purple';
+			 	} else if (is_null($v)) {
+			 		$str_val = 'null';
+					$v_color = 'dc_red';
 			 	} else if (is_numeric($v)) {
 					$v_color = 'dc_blue';
 			 	} else {
 			 		$v_color = '';
 			 	}
-			 	return '<div class="dVdash"></div><div class="dInline">'.$d_key.'<span class="'.$v_color.'">'.(gettype($v)).'</span>&nbsp;=&gt;&nbsp;<span class="'.$v_color.'">'.(strval($v)).'</span></div><br />';
+			 	$type_color = '';
+			 	$type_value = gettype($v);
+			 	switch (gettype($v)) {
+			 		case ('string'):   $type_color = 'dc_green'; break;
+			 		case ('array'):    $type_color = 'dc_yellow'; break;
+			 		case ('object'):   $type_color = 'dc_orange'; break;
+			 		case ('bool'):     $type_color = 'dc_purple'; break;
+			 		case ('boolean'):  $type_color = 'dc_purple'; break;
+			 		case ('integer'):  $type_color = 'dc_blue'; break;
+			 		case ('int'):      $type_color = 'dc_blue'; break;
+			 		case ('float'):    $type_color = 'dc_blue'; break;
+			 		case ('double'):   $type_color = 'dc_blue'; break;
+			 		case ('resource'): $type_color = 'dc_red'; break;
+			 		case ('NULL'):     $type_color = 'dc_red'; break;
+			 	}
+			 	return '<div class="dVdash"></div><div class="dInline">'.$d_key.'<span class="'.$type_color.'">'.(gettype($v)).'</span>&nbsp;=&gt;&nbsp;<span class="'.$v_color.'">'.$str_val.'</span></div><br />';
 			 }
 			 foreach ($v as $key => $value) {
 			 	$s .= $openVar($key, $value, $openVar, $open_all);
@@ -152,6 +174,13 @@ if (!function_exists('treevar')) {
 		$result .= '</div></div></div>
 			<script>
 			    (function () {
+			    	var tree_vars = document.getElementsByClassName("treevar");
+					var tree_var;
+			    	if (tree_vars.length > 0) {
+            			tree_var = tree_vars[tree_vars.length-1];
+			    	} else {
+            			return;
+			    	};
 			        var addListener = function (b) {
 			            b.addEventListener("click", function (e) {
 			                if (event.target != b)
@@ -177,13 +206,12 @@ if (!function_exists('treevar')) {
 			                if (event.target != b)
 			                    return; 
 			                e.preventDefault();
-			                var parent = b.parentNode.parentNode;
-			                var parents = parent.getElementsByClassName("dParent");
-			                var childs  = parent.getElementsByClassName("dChilds");
-			                var dBtnOpens  = parent.getElementsByClassName("dBtnOpen");
+			                var parents    = tree_var.getElementsByClassName("dParent");
+			                var childs     = tree_var.getElementsByClassName("dChilds");
+			                var dBtnOpens  = tree_var.getElementsByClassName("dBtnOpen");
 			                var i,l;
 
-			                if (b.classList.contains("dClose")) {
+			                if (tree_var.classList.contains("dClose")) {
 			                	i = 0, l = parents.length;
 			                	while (i < l) {
 			                		parents[i].classList.remove("dClose", "dOpen");
@@ -202,7 +230,7 @@ if (!function_exists('treevar')) {
 			                		dBtnOpens[i].innerHTML = "-";
 			                		++i;
 			                	}
- 								b.classList.remove("dClose");
+ 								tree_var.classList.remove("dClose");
  								b.innerHTML = "c";
 			                } else {
 			                	i = 0, l = parents.length;
@@ -223,30 +251,29 @@ if (!function_exists('treevar')) {
 			                		dBtnOpens[i].innerHTML = "+";
 			                		++i;
 			                	}
-								b.classList.add("dClose");
+								tree_var.classList.add("dClose");
 								b.innerHTML = "o";
 			                }
 			            });
 			        };
-			        var debugs = document.getElementsByClassName("treevar");
-			        if (debugs.length > 1)
-            			debugs = [debugs[debugs.length-1]];
+			        
+            		var debugs = [tree_var];
 			        var i_debugs = 0, l_debugs = debugs.length, parents, i, l;
 			        while (i_debugs < l_debugs) { 
 			            parents = debugs[i_debugs].getElementsByClassName("dBtnOpen");
-			            i =0, l = parents.length;
+			            i = 0, l = parents.length;
 			            while (i < l) {
 			                addListener(parents[i]);
 			                ++i;
 			            }
 			            parents = debugs[i_debugs].getElementsByClassName("dBtnOpenAll");
-			            i =0, l = parents.length;
+			            i = 0, l = parents.length;
 			            while (i < l) {
 			                addListener_open_all(parents[i]);
 			                ++i;
 			            }
 			            ++i_debugs;
-			        }
+			        };
 			    })();
 			</script>';
 		// echo preg_replace('/\>\s+\</m', '><',$result);
