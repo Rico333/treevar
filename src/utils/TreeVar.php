@@ -1,5 +1,5 @@
 <?php
-
+if (!function_exists('treevar')) {
 	function treevar ($var, $open_all=false) { 
 		$result = '
 		<style>
@@ -81,8 +81,8 @@
 		    }*/
 		</style>
 			<div class="treevar"><!--
-    		   --><div class="dParent '.($open_all?'':'dClose').'"><!--
-        	   --><div class="dInline"><div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div>&nbsp;TreeVar</div><!--
+    		   --><div class="dParent'.($open_all?'':' dClose').'"><!--
+        	   --><div class="dInline"><div class="dInlineBlock dSquare dBtnOpenAll'.($open_all?'':' dClose').'">'.($open_all?'c':'o').'</div>&nbsp;TreeVar&nbsp;</div><div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div><!--
         	   --><div class="dChilds '.($open_all?'':'dNone').'">';	
 		$openVar = function ($k, $v, $openVar, $open_all){
 			if (is_string($k)) {
@@ -103,7 +103,7 @@
 					return '<div class="dVdash"></div><div class="dInline">'.$d_key.'<span class="dc_yellow">'.(gettype($v)).'</span>&nbsp;=&gt;&nbsp;(<span class="dc_blue">0</span>)</div><br />';
 			 	} else {
 			 		$s = '
-			 		<div class="dParent '.($open_all?'':'dClose').'"><div class="dVdash dInline"></div><!--
+			 		<div class="dParent'.($open_all?'':' dClose').'"><div class="dVdash dInline"></div><!--
                 	  --><div class="dInline">';
                 	$s .= $d_key.'<span class="dc_yellow">'.(gettype($v)).'</span>';
                 	$s .= '&nbsp;(<span class="dc_blue">'.count($v).'</span>)&nbsp;=&gt;&nbsp;<div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div></div><div class="dChilds dStep '.($open_all?'':'dNone').'">';
@@ -119,7 +119,7 @@
 				    $vv[$prop->getName()]=$prop->getValue($v);
 				};
 			 	$s = '
-			 	<div class="dParent '.($open_all?'':'dClose').'"><div class="dVdash dInline"></div><!--
+			 	<div class="dParent'.($open_all?'':' dClose').'"><div class="dVdash dInline"></div><!--
                    --><div class="dInline">';
 				$s .= $d_key.'<span class="dc_orange">'.(get_class($v)).'</span>';
                 $s .= '&nbsp;(<span class="dc_blue">'.count($vv).'</span>)&nbsp;=&gt;&nbsp;<div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div></div><div class="dChilds dStep '.($open_all?'':'dNone').'">';
@@ -131,6 +131,7 @@
 			 	if (is_string($v)) {
 			 		$v_color = 'dc_green';
 			 	} else if (is_bool($v)) {
+			 		if ($v === true) $v = 'true'; else if ($v === false) $v = 'false';
 					$v_color = 'dc_purple';
 			 	} else if (is_numeric($v)) {
 					$v_color = 'dc_blue';
@@ -170,7 +171,63 @@
 			                    b.innerHTML = "+";
 			                }
 			            });
-			        }
+			        };
+			        var addListener_open_all = function (b) {
+			            b.addEventListener("click", function (e) {
+			                if (event.target != b)
+			                    return; 
+			                e.preventDefault();
+			                var parent = b.parentNode.parentNode;
+			                var parents = parent.getElementsByClassName("dParent");
+			                var childs  = parent.getElementsByClassName("dChilds");
+			                var dBtnOpens  = parent.getElementsByClassName("dBtnOpen");
+			                var i,l;
+
+			                if (b.classList.contains("dClose")) {
+			                	i = 0, l = parents.length;
+			                	while (i < l) {
+			                		parents[i].classList.remove("dClose", "dOpen");
+			                    	parents[i].classList.add("dOpen");
+			                		++i;
+			                	}
+			                	i = 0, l = childs.length;
+			                	while (i < l) {
+			                		if (childs[i].classList.contains("dNone")) {
+			                			childs[i].classList.remove("dNone");
+			                		}
+			                		++i;
+			                	}
+			                	i = 0, l = dBtnOpens.length;
+			                	while (i < l) {
+			                		dBtnOpens[i].innerHTML = "-";
+			                		++i;
+			                	}
+ 								b.classList.remove("dClose");
+ 								b.innerHTML = "c";
+			                } else {
+			                	i = 0, l = parents.length;
+			                	while (i < l) {
+			                		parents[i].classList.remove("dClose", "dOpen");
+			                    	parents[i].classList.add("dClose");
+			                		++i;
+			                	}
+			                	i = 0, l = childs.length;
+			                	while (i < l) {
+			                		if (!childs[i].classList.contains("dNone")) {
+			                			childs[i].classList.add("dNone");
+			                		}
+			                		++i;
+			                	}
+			                	i = 0, l = dBtnOpens.length;
+			                	while (i < l) {
+			                		dBtnOpens[i].innerHTML = "+";
+			                		++i;
+			                	}
+								b.classList.add("dClose");
+								b.innerHTML = "o";
+			                }
+			            });
+			        };
 			        var debugs = document.getElementsByClassName("treevar");
 			        if (debugs.length > 1)
             			debugs = [debugs[debugs.length-1]];
@@ -182,6 +239,12 @@
 			                addListener(parents[i]);
 			                ++i;
 			            }
+			            parents = debugs[i_debugs].getElementsByClassName("dBtnOpenAll");
+			            i =0, l = parents.length;
+			            while (i < l) {
+			                addListener_open_all(parents[i]);
+			                ++i;
+			            }
 			            ++i_debugs;
 			        }
 			    })();
@@ -189,5 +252,5 @@
 		// echo preg_replace('/\>\s+\</m', '><',$result);
 			echo $result;
 	}
-
+}
 ?>
