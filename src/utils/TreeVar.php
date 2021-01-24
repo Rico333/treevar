@@ -85,13 +85,6 @@
         	   --><div class="dInline"><div class="dInlineBlock dSquare dBtnOpen">'.($open_all?'-':'+').'</div>&nbsp;TreeVar</div><!--
         	   --><div class="dChilds '.($open_all?'':'dNone').'">';	
 		$openVar = function ($k, $v, $openVar, $open_all){
-			$colors = [
-				'string' => '#56DB3A',
-				'integer' => '#1299DA',
-				'object' => '#ef00ff',
-				'array' => '#ffff00',
-				'source' => '#ff0000'
-			];
 			if (is_string($k)) {
 			 	$key_color = 'dc_green';
 			 } else if (is_numeric($k)) {
