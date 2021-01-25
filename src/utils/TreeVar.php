@@ -174,106 +174,124 @@ if (!function_exists('treevar')) {
 		$result .= '</div></div></div>
 			<script>
 			    (function () {
+			    	var attach_listeners = function (tree_var) {
+			    		
+			        	var addListener = function (b) {
+			        	    b.addEventListener("click", function (e) {
+			        	        if (event.target != b)
+			        	            return; 
+			        	        e.preventDefault();
+			        	        var parent = b.parentNode.parentNode;
+			        	        var child = parent.getElementsByClassName("dChilds")[0];
+			        	        child.classList.remove("dNone");
+			        	        if (parent.classList.contains("dClose")) {
+			        	            parent.classList.remove("dClose");
+			        	            parent.classList.add("dOpen");
+			        	            b.innerHTML = "-";
+			        	        } else {
+			        	            child.classList.add("dNone");
+			        	            parent.classList.remove("dOpen");
+			        	            parent.classList.add("dClose");
+			        	            b.innerHTML = "+";
+			        	        }
+			        	    });
+			        	};
+			        	var addListener_open_all = function (b) {
+			        	    b.addEventListener("click", function (e) {
+			        	        if (event.target != b)
+			        	            return; 
+			        	        e.preventDefault();
+			        	        var parents    = tree_var.getElementsByClassName("dParent");
+			        	        var childs     = tree_var.getElementsByClassName("dChilds");
+			        	        var dBtnOpens  = tree_var.getElementsByClassName("dBtnOpen");
+			        	        var i,l;
+	
+			        	        if (tree_var.classList.contains("dClose")) {
+			        	        	i = 0, l = parents.length;
+			        	        	while (i < l) {
+			        	        		parents[i].classList.remove("dClose", "dOpen");
+			        	            	parents[i].classList.add("dOpen");
+			        	        		++i;
+			        	        	}
+			        	        	i = 0, l = childs.length;
+			        	        	while (i < l) {
+			        	        		if (childs[i].classList.contains("dNone")) {
+			        	        			childs[i].classList.remove("dNone");
+			        	        		}
+			        	        		++i;
+			        	        	}
+			        	        	i = 0, l = dBtnOpens.length;
+			        	        	while (i < l) {
+			        	        		dBtnOpens[i].innerHTML = "-";
+			        	        		++i;
+			        	        	}
+ 									tree_var.classList.remove("dClose");
+ 									b.innerHTML = "c";
+			        	        } else {
+			        	        	i = 0, l = parents.length;
+			        	        	while (i < l) {
+			        	        		parents[i].classList.remove("dClose", "dOpen");
+			        	            	parents[i].classList.add("dClose");
+			        	        		++i;
+			        	        	}
+			        	        	i = 0, l = childs.length;
+			        	        	while (i < l) {
+			        	        		if (!childs[i].classList.contains("dNone")) {
+			        	        			childs[i].classList.add("dNone");
+			        	        		}
+			        	        		++i;
+			        	        	}
+			        	        	i = 0, l = dBtnOpens.length;
+			        	        	while (i < l) {
+			        	        		dBtnOpens[i].innerHTML = "+";
+			        	        		++i;
+			        	        	}
+									tree_var.classList.add("dClose");
+									b.innerHTML = "o";
+			        	        }
+			        	    });
+			        	};
+			        	
+			        	parents = tree_var.getElementsByClassName("dBtnOpen");
+			        	i = 0, l = parents.length;
+			        	while (i < l) {
+			        	    addListener(parents[i]);
+			        	    ++i;
+			        	}
+			        	parents = tree_var.getElementsByClassName("dBtnOpenAll");
+			        	i = 0, l = parents.length;
+			        	while (i < l) {
+			        	    addListener_open_all(parents[i]);
+			        	    ++i;
+			        	}
+			    	};
+			    	if (!window.swer_treevar_debug_html_containers) {
+			    		window.swer_treevar_debug_html_containers = [];
+			    	};
 			    	var tree_vars = document.getElementsByClassName("treevar");
-					var tree_var;
+					if (tree_vars) {
+						var i_tv = 0, l_tv = tree_vars.length, i_c, l_c = window.swer_treevar_debug_html_containers.length;
+						while (i_tv < l_tv) {
+							i_c = 0;
+							while (i_c < l_c) {
+								if (window.swer_treevar_debug_html_containers[i_c] == tree_vars[i_tv]) {
+									break;
+								}
+								++i_c;
+							}
+							if (i_c >= l_c) {
+								attach_listeners(tree_vars[i_tv]);
+								window.swer_treevar_debug_html_containers.push(tree_vars[i_tv]);
+							}
+							++i_tv;
+						}
+					};
 			    	if (tree_vars.length > 0) {
             			tree_var = tree_vars[tree_vars.length-1];
 			    	} else {
             			return;
 			    	};
-			        var addListener = function (b) {
-			            b.addEventListener("click", function (e) {
-			                if (event.target != b)
-			                    return; 
-			                e.preventDefault();
-			                var parent = b.parentNode.parentNode;
-			                var child = parent.getElementsByClassName("dChilds")[0];
-			                child.classList.remove("dNone");
-			                if (parent.classList.contains("dClose")) {
-			                    parent.classList.remove("dClose");
-			                    parent.classList.add("dOpen");
-			                    b.innerHTML = "-";
-			                } else {
-			                    child.classList.add("dNone");
-			                    parent.classList.remove("dOpen");
-			                    parent.classList.add("dClose");
-			                    b.innerHTML = "+";
-			                }
-			            });
-			        };
-			        var addListener_open_all = function (b) {
-			            b.addEventListener("click", function (e) {
-			                if (event.target != b)
-			                    return; 
-			                e.preventDefault();
-			                var parents    = tree_var.getElementsByClassName("dParent");
-			                var childs     = tree_var.getElementsByClassName("dChilds");
-			                var dBtnOpens  = tree_var.getElementsByClassName("dBtnOpen");
-			                var i,l;
 
-			                if (tree_var.classList.contains("dClose")) {
-			                	i = 0, l = parents.length;
-			                	while (i < l) {
-			                		parents[i].classList.remove("dClose", "dOpen");
-			                    	parents[i].classList.add("dOpen");
-			                		++i;
-			                	}
-			                	i = 0, l = childs.length;
-			                	while (i < l) {
-			                		if (childs[i].classList.contains("dNone")) {
-			                			childs[i].classList.remove("dNone");
-			                		}
-			                		++i;
-			                	}
-			                	i = 0, l = dBtnOpens.length;
-			                	while (i < l) {
-			                		dBtnOpens[i].innerHTML = "-";
-			                		++i;
-			                	}
- 								tree_var.classList.remove("dClose");
- 								b.innerHTML = "c";
-			                } else {
-			                	i = 0, l = parents.length;
-			                	while (i < l) {
-			                		parents[i].classList.remove("dClose", "dOpen");
-			                    	parents[i].classList.add("dClose");
-			                		++i;
-			                	}
-			                	i = 0, l = childs.length;
-			                	while (i < l) {
-			                		if (!childs[i].classList.contains("dNone")) {
-			                			childs[i].classList.add("dNone");
-			                		}
-			                		++i;
-			                	}
-			                	i = 0, l = dBtnOpens.length;
-			                	while (i < l) {
-			                		dBtnOpens[i].innerHTML = "+";
-			                		++i;
-			                	}
-								tree_var.classList.add("dClose");
-								b.innerHTML = "o";
-			                }
-			            });
-			        };
-			        
-            		var debugs = [tree_var];
-			        var i_debugs = 0, l_debugs = debugs.length, parents, i, l;
-			        while (i_debugs < l_debugs) { 
-			            parents = debugs[i_debugs].getElementsByClassName("dBtnOpen");
-			            i = 0, l = parents.length;
-			            while (i < l) {
-			                addListener(parents[i]);
-			                ++i;
-			            }
-			            parents = debugs[i_debugs].getElementsByClassName("dBtnOpenAll");
-			            i = 0, l = parents.length;
-			            while (i < l) {
-			                addListener_open_all(parents[i]);
-			                ++i;
-			            }
-			            ++i_debugs;
-			        };
 			    })();
 			</script>';
 		// echo preg_replace('/\>\s+\</m', '><',$result);
